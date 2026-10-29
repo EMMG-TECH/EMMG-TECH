@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EMMG TECH | Digitálne nástroje</title>
+
+    <meta name="description"
+          content="EMMG TECH – moderné digitálne nástroje vytvorené Erikom a Markom.">
+
+    <style>
+        :root {
+            --background: #07111f;
+            --surface: #101e32;
+            --surface-hover: #172943;
+            --primary: #00c8ff;
+            --secondary: #536dfe;
+            --text: #f0f6ff;
+            --muted: #a0b0c8;
+            --border: #243650;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(7, 17, 31, 0.94);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+
+        .navbar {
+            max-width: 1150px;
+            margin: auto;
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+        }
+
+        nav a {
+            color: var(--muted);
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            max-width: 1000px;
+            margin: auto;
+            padding: 90px 24px 65px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 15px;
+            border: 1px solid #164d70;
+            border-radius: 30px;
+            background: #0b2338;
+            color: var(--primary);
+            font-size: 13px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: clamp(42px, 8vw, 76px);
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 22px;
+        }
+
+        h1 span {
+            background: linear-gradient(90deg, #00c8ff, #6680ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero p {
+            max-width: 650px;
+            margin: 0 auto;
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 13px 23px;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button-primary {
+            background: linear-gradient(100deg, #00bde9, #536dfe);
+            color: white;
+        }
+
+        .button-secondary {
+            border: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .tools-section {
+            max-width: 1150px;
+            margin: auto;
+            padding: 35px 24px 75px;
+        }
+
+        .section-heading {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .section-heading h2 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+        }
+
+        .search-box {
+            max-width: 550px;
+            margin: 0 auto 35px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .tool-card {
+            display: block;
+            padding: 25px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--surface);
+            transition: transform 0.2s, border-color 0.2s,
+                        background 0.2s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            background: var(--surface-hover);
+        }
+
+        .tool-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            margin-bottom: 18px;
+            border-radius: 13px;
+            background: #102e48;
+            font-size: 26px;
+        }
+
+        .tool-card h3 {
+            font-size: 19px;
+            margin-bottom: 8px;
+        }
+
+        .tool-card p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .tool-status {
+            display: inline-block;
+            margin-top: 17px;
+            padding: 4px 9px;
+            border-radius: 6px;
+            background: #15382f;
+            color: #70e8b1;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .tool-status.planned {
+            background: #302b20;
+            color: #f5cb78;
+        }
+
+        .empty-message {
+            display: none;
+            text-align: center;
+            color: var(--muted);
+            padding: 30px;
+        }
+
+        .about {
+            max-width: 850px;
+            margin: 0 auto 70px;
+            padding: 35px 25px;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: linear-gradient(135deg, #101e32, #0b192a);
+        }
+
+        .about h2 {
+            font-size: 27px;
+            margin-bottom: 12px;
+        }
+
+        .about p {
+            color: var(--muted);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 25px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        footer strong {
+            color: var(--primary);
+        }
+
+        @media (max-width: 750px) {
+            .navbar {
+                flex-direction: column;
+            }
+
+            nav {
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .tools-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero {
+                padding-top: 65px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading h2 {
+                font-size: 27px;
+            }
+
+            .hero p {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="navbar">
+        <a class="logo" href="#domov">
+            EMMG <span>TECH</span>
+        </a>
+
+        <nav>
+            <a href="#domov">Domov</a>
+            <a href="#nastroje">Nástroje</a>
+            <a href="#onas">O projekte</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+
+    <section class="hero" id="domov">
+        <div class="badge">⚡ Technológie. Nápady. Riešenia.</div>
+
+        <h1>
+            Vitaj v <span>EMMG TECH</span>
+        </h1>
+
+        <p>
+            Jedno miesto pre praktické digitálne nástroje.
+            Objav kalkulačky, prevodníky a ďalšie užitočné funkcie,
+            ktoré spoločne vytvárame.
+        </p>
+
+        <div class="hero-buttons">
+            <a class="button button-primary" href="#nastroje">
+                Preskúmať nástroje →
+            </a>
+
+            <a class="button button-secondary" href="#onas">
+                O našom projekte
+            </a>
+        </div>
+    </section>
+
+    <section class="tools-section" id="nastroje">
+
+        <div class="section-heading">
+            <h2>Naše nástroje</h2>
+            <p>Vyber si nástroj, ktorý práve potrebuješ.</p>
+        </div>
+
+        <div class="search-box">
+            <input
+                type="search"
+                id="toolSearch"
+                placeholder="🔍 Hľadať nástroj..."
+                aria-label="Hľadať nástroj"
+            >
+        </div>
+
+        <div class="tools-grid" id="toolsGrid">
+
+            <a class="tool-card" href="kalkulacka.html"
+               data-name="kalkulačka matematika výpočty">
+                <div class="tool-icon">🧮</div>
+                <h3>Kalkulačka</h3>
+                <p>Vypočítaj matematické príklady rýchlo a jednoducho.</p>
+                <span class="tool-status planned">PRIPRAVUJE SA</span>
+            </a>
+
+            <a class="tool-card" href="prevodnik.html"
+               data-name="prevodník jednotiek dĺžka hmotnosť">
+                <div class="tool-icon">📏</div>
+                <h3>Prevodník jednotiek</h3>
+                <p>Prevod dĺžky, hmotnosti a ďalších jednotiek.</p>
+                <span class="tool-status planned">PRIPRAVUJE SA</span>
+            </a>
+
+            <a class="tool-card" href="generator.html"
+               data-name="generátor náhodné čísla">
+                <div class="tool-icon">🎲</div>
+                <h3>Generátor</h3>
+                <p>Generuj náhodné čísla a ďalšie hodnoty.</p>
+                <span class="tool-status planned">PRIPRAVUJE SA</span>
+            </a>
+
+            <a class="tool-card" href="casovac.html"
+               data-name="časovač stopky čas odpočítavanie">
+                <div class="tool-icon">⏱️</div>
+                <h3>Časovač a stopky</h3>
+                <p>Meraj čas alebo si nastav odpočítavanie.</p>
+                <span class="tool-status planned">PRIPRAVUJE SA</span>
+            </a>
+
+            <a class="tool-card" href="poznamky.html"
+               data-name="poznámky text zápisky">
+                <div class="tool-icon">📝</div>
+                <h3>Poznámky</h3>
+                <p>Priestor na zapisovanie nápadov a dôležitých textov.</p>
+                <span class="tool-status planned">PRIPRAVUJE SA</span>
+            </a>
+
+            <a class="tool-card" href="index.html#nastroje"
+               data-name="ďalšie nástroje nové funkcie">
+                <div class="tool-icon">🚀</div>
+                <h3>Ďalšie nástroje</h3>
+                <p>Nové funkcie budeme postupne pridávať.</p>
+                <span class="tool-status">VO VÝVOJI</span>
+            </a>
+
+        </div>
+
+        <p class="empty-message" id="emptyMessage">
+            Nenašiel sa žiadny nástroj. Skús iný výraz.
+        </p>
+
+    </section>
+
+    <section class="about" id="onas">
+        <h2>Čo je EMMG TECH?</h2>
+
+        <p>
+            EMMG TECH je spoločný technologický projekt Erika a Marka.
+            Naším cieľom je vytvárať užitočné, jednoduché a dostupné
+            digitálne nástroje. Projekt budeme postupne rozširovať
+            o vlastné nápady a nové funkcie.
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    <p>
+        © <span id="year"></span> <strong>EMMG TECH</strong>
+        | Vytvorili Erik &amp; Marko
+    </p>
+    <p>Technológie vytvorené s nápadmi a kreativitou.</p>
+</footer>
+
+<script>
+    // Automaticky aktualizuje rok v pätičke.
+    document.getElementById("year").textContent =
+        new Date().getFullYear();
+
+    // Vyhľadávanie nástrojov podľa názvu a kľúčových slov.
+    const searchInput = document.getElementById("toolSearch");
+    const toolCards = document.querySelectorAll(".tool-card");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    searchInput.addEventListener("input", function () {
+        const query = this.value
+            .toLocaleLowerCase("sk")
+            .trim();
+
+        let visibleCount = 0;
+
+        toolCards.forEach(function (card) {
+            const searchableText = (
+                card.innerText + " " +
+                card.dataset.name
+            ).toLocaleLowerCase("sk");
+
+            const matches = searchableText.includes(query);
+
+            card.style.display = matches ? "block" : "none";
+
+            if (matches) {
+                visibleCount++;
+            }
+        });
+
+        emptyMessage.style.display =
+            visibleCount === 0 ? "block" : "none";
+    });
+</script>
+
+</body>
+</html>
