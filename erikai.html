@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMMG TECH</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+    font-family: Arial, sans-serif;
+    color: white;
+    text-align: center;
+
+    background:
+        radial-gradient(circle at 10% 20%,
+            rgba(255, 0, 60, .35), transparent 40%),
+        radial-gradient(circle at 90% 80%,
+            rgba(0, 255, 100, .30), transparent 40%),
+        linear-gradient(135deg, #100b18, #071a16, #180b13);
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px,
+            transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px,
+            transparent 1px);
+    background-size: 40px 40px;
+}
+
+main {
+    position: relative;
+    width: 100%;
+    max-width: 650px;
+}
+
+h1 {
+    font-size: clamp(42px, 9vw, 76px);
+    font-weight: 900;
+    letter-spacing: 3px;
+    background: linear-gradient(100deg,
+        #ff294f, #ff5555, #39ff88);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.subtitle {
+    margin-top: 18px;
+    color: #c5d5cc;
+    letter-spacing: 3px;
+    font-size: 13px;
+}
+
+.description {
+    margin: 35px 0 25px;
+    color: #c5d5cc;
+    line-height: 1.8;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+    margin: 16px 0;
+    padding: 21px 24px;
+    border: 2px solid transparent;
+    border-radius: 14px;
+
+    background:
+        linear-gradient(#101b19, #101b19) padding-box,
+        linear-gradient(110deg, #ff294f, #ff5555, #39ff88)
+        border-box;
+
+    color: white;
+    text-decoration: none;
+    font-size: 17px;
+    font-weight: bold;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 0 22px rgba(255,41,79,.25),
+        0 0 28px rgba(57,255,136,.20);
+}
+
+.arrow {
+    color: #39ff88;
+    font-size: 24px;
+}
+
+footer {
+    position: relative;
+    margin-top: 45px;
+    color: #a9bbb3;
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+footer strong {
+    color: white;
+}
+
+footer span {
+    color: #39ff88;
+}
+</style>
+</head>
+
+<body>
+<main>
+    <h1>EMMG TECH</h1>
+
+    <p class="subtitle">
+        TECHNOLOGY • INNOVATION • IDEAS
+    </p>
+
+    <p class="description">
+        Digitálne nástroje a technologické projekty
+        vytvorené spoločne Erikom a Markom.
+    </p>
+
+    <!-- ODKAZ NA ERIKAI OS -->
+    <a class="button"
+       href="https://erikai-demoa1.github.io/ErikAI/">
+        <span>ErikAI OS</span>
+        <span class="arrow">→</span>
+    </a>
+
+    <!-- TU SI MÔŽEŠ ZMENIŤ NÁZOV A ODKAZ -->
+    <a class="button" href="moj-nastroj.html">
+        <span>Môj nástroj</span>
+        <span class="arrow">→</span>
+    </a>
+
+    <footer>
+        <strong>EMMG <span>TECH</span></strong><br>
+        Vytvorili spoločne<br>
+        Erik Mohylák <span>&amp;</span> Marko Grac
+    </footer>
+</main>
+</body>
+</html>
