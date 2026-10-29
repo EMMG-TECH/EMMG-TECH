@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EMMG TECH</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+
+            background:
+                radial-gradient(
+                    circle at 15% 20%,
+                    rgba(255, 0, 60, 0.35),
+                    transparent 40%
+                ),
+                radial-gradient(
+                    circle at 85% 80%,
+                    rgba(0, 255, 100, 0.30),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    135deg,
+                    #100b18,
+                    #071a16,
+                    #180b13
+                );
+        }
+
+        /* Technologická mriežka v pozadí */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255, 255, 255, 0.035) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.035) 1px,
+                    transparent 1px
+                );
+
+            background-size: 40px 40px;
+
+            mask-image: linear-gradient(
+                to bottom,
+                transparent,
+                black 25%,
+                black 75%,
+                transparent
+            );
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            padding: 30px 20px;
+            text-align: center;
+            animation: appear 1.2s ease;
+        }
+
+        .logo {
+            font-size: clamp(48px, 10vw, 100px);
+            font-weight: 900;
+            letter-spacing: 5px;
+            line-height: 1.2;
+
+            background: linear-gradient(
+                100deg,
+                #ff294f,
+                #ff4242,
+                #35ff8a,
+                #00d879
+            );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+
+            filter: drop-shadow(
+                0 0 22px rgba(0, 255, 120, 0.15)
+            );
+        }
+
+        .subtitle {
+            margin-top: 18px;
+            font-size: clamp(14px, 2.5vw, 19px);
+            color: #d0ded8;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 48px;
+            padding: 20px 42px;
+
+            font-size: clamp(17px, 3vw, 23px);
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: white;
+            text-decoration: none;
+
+            border: 2px solid transparent;
+            border-radius: 14px;
+
+            background:
+                linear-gradient(#101b19, #101b19) padding-box,
+                linear-gradient(
+                    100deg,
+                    #ff294f,
+                    #ff4848,
+                    #39ff88
+                ) border-box;
+
+            box-shadow:
+                0 0 25px rgba(255, 30, 75, 0.15),
+                0 0 30px rgba(0, 255, 120, 0.12);
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                background 0.25s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-4px) scale(1.04);
+
+            box-shadow:
+                0 0 25px rgba(255, 30, 75, 0.35),
+                0 0 40px rgba(0, 255, 120, 0.30);
+
+            background:
+                linear-gradient(#17251f, #17251f) padding-box,
+                linear-gradient(
+                    100deg,
+                    #ff294f,
+                    #ff4848,
+                    #39ff88
+                ) border-box;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        .creators {
+            margin-top: 55px;
+            color: #a9bbb3;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .creators strong {
+            color: white;
+        }
+
+        .creators .highlight {
+            color: #53ff9b;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                letter-spacing: 2px;
+            }
+
+            .subtitle {
+                letter-spacing: 1.5px;
+            }
+
+            .button {
+                padding: 18px 26px;
+                margin-top: 38px;
+            }
+
+            .creators {
+                margin-top: 45px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+
+        <h1 class="logo">EMMG TECH</h1>
+
+        <p class="subtitle">
+            Technology • Innovation • Ideas
+        </p>
+
+        <a class="button" href="nastroje.html">
+            Zoznam nástrojov →
+        </a>
+
+        <footer class="creators">
+            Technologický projekt vytvorený spoločne<br>
+            <strong>Erik Mohylák</strong>
+            <span class="highlight">&amp;</span>
+            <strong>Marko Grac</strong>
+        </footer>
+
+    </main>
+
+</body>
+</html>
