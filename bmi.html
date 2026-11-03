@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokročilá Genetická BMI Kalkulačka</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .radio-btn {
+            flex: 1;
+            text-align: center;
+        }
+
+        .radio-btn input {
+            display: none;
+        }
+
+        .radio-btn label {
+            display: block;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
+        }
+
+        .radio-btn input:checked + label {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Výsledky */
+        .result-box {
+            text-align: center;
+            padding: 1.5rem;
+            background: #0f172a;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .bmi-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            margin: 0.5rem 0;
+        }
+
+        .bmi-status {
+            display: inline-block;
+            padding: 0.35rem 1rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Bar Gauge */
+        .gauge-container {
+            width: 100%;
+            height: 12px;
+            background: #334155;
+            border-radius: 6px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #10b981, #f59e0b, #ef4444);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        /* Genetické zhodnotenie */
+        .verdict-card {
+            border-left: 4px solid var(--accent);
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .verdict-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar-wrap {
+            margin: 0.8rem 0;
+        }
+
+        .progress-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .progress-genetics { background: var(--accent); }
+        .progress-lifestyle { background: var(--warning); }
+
+        .advice-box {
+            background: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-top: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card full-width">
+        <h1>🧬 Pokročilá Genetická BMI Kalkulačka</h1>
+        <p class="subtitle">Vypočítaj si BMI a zisti, koľko z tvojej postavy tvorí životný štýl a koľko genetika rodičov.</p>
+    </div>
+
+    <!-- Formulár: Užívateľ -->
+    <div class="card">
+        <h2>👤 Tvoj Profil (Povinné)</h2>
+        <form id="bmiForm">
+            <div class="form-group">
+                <label>Pohlavie</label>
+                <div class="radio-group">
+                    <div class="radio-btn">
+                        <input type="radio" id="male" name="gender" value="male" checked>
+                        <label for="male">Muž</label>
+                    </div>
+                    <div class="radio-btn">
+                        <input type="radio" id="female" name="gender" value="female">
+                        <label for="female">Žena</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="age">Vek (roky)</label>
+                    <input type="number" id="age" value="25" min="10" max="120" required>
+                </div>
+                <div class="form-group">
+                    <label for="height">Výška (cm)</label>
+                    <input type="number" id="height" value="175" min="100" max="230" required>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="weight">Váha (kg)</label>
+                    <input type="number" id="weight" value="75" min="30" max="300" required>
+                </div>
+                <div class="form-group">
+                    <label for="bodyType">Typ Postavy</label>
+                    <select id="bodyType">
+                        <option value="1">Štíhla / Útla</option>
+                        <option value="2" selected>Priemerná</option>
+                        <option value="3">Svalnatá / Robustná</option>
+                        <option value="4">Širšia / Ťažšia krupobičnosť</option>
+                    </select>
+                </div>
+            </div>
+    </div>
+
+    <!-- Formulár: Rodičia -->
+    <div class="card">
+        <h2>👨‍👩‍👦 Genetický Profil Rodičov (Voliteľné)</h2>
+        
+        <div style="border-bottom: 1px solid var(--card-border); padding-bottom: 0.8rem; margin-bottom: 0.8rem;">
+            <label style="font-weight: bold; color: #fff;">👨 Údaje Otca</label>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="fatherWeight">Váha (kg)</label>
+                    <input type="number" id="fatherWeight" placeholder="napr. 85">
+                </div>
+                <div class="form-group">
+                    <label for="fatherBody">Typ Postavy</label>
+                    <select id="fatherBody">
+                        <option value="">Nevybrané</option>
+                        <option value="1">Štíhla</option>
+                        <option value="2">Priemerná</option>
+                        <option value="3">Svalnatá</option>
+                        <option value="4">Nadváha/Obezita</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label style="font-weight: bold; color: #fff;">👩 Údaje Mamy</label>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="motherWeight">Váha (kg)</label>
+                    <input type="number" id="motherWeight" placeholder="napr. 65">
+                </div>
+                <div class="form-group">
+                    <label for="motherBody">Typ Postavy</label>
+                    <select id="motherBody">
+                        <option value="">Nevybrané</option>
+                        <option value="1">Štíhla</option>
+                        <option value="2">Priemerná</option>
+                        <option value="3">Svalnatá</option>
+                        <option value="4">Nadváha/Obezita</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Vypočítať Výsledky & Genetiku</button>
+        </form>
+    </div>
+
+    <!-- Výsledkový Panel -->
+    <div class="card full-width hidden" id="resultCard">
+        <h2>📊 Výsledná Analýza</h2>
+        
+        <div class="grid-2">
+            <div class="result-box">
+                <div style="color: var(--text-muted); font-size: 0.9rem;">Štandardné BMI</div>
+                <div class="bmi-number" id="bmiValue">24.5</div>
+                <div class="bmi-status" id="bmiStatus">Normálna váha</div>
+                <div class="gauge-container">
+                    <div class="gauge-fill" id="gaugeFill"></div>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <div style="color: var(--text-muted); font-size: 0.9rem;">Geneticky Upravené BMI</div>
+                <div class="bmi-number" id="adjBmiValue" style="color: var(--success);">23.8</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="adjBmiNote">
+                    Zohľadňuje stavbu kostry a rodičov
+                </div>
+            </div>
+        </div>
+
+        <div class="verdict-card">
+            <div class="verdict-title" id="verdictTitle">⚖️ Verdikt: Čia je to chyba?</div>
+            <p id="verdictText" style="font-size: 0.95rem; color: var(--text-muted);">
+                Na základe analýzy sme vypočítali pomer vplyvu tvojich génov a tvojej životosprávy.
+            </p>
+
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-label">
+                    <span>🧬 Genetika (<span id="genPct">50</span>%)</span>
+                    <span>🍔 Životný štýl (<span id="lifePct">50</span>%)</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-genetics" id="genBar" style="width: 50%;"></div>
+                    <div class="progress-lifestyle" id="lifeBar" style="width: 50%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="advice-box" id="adviceBox">
+            💡 <strong>Odporúčanie:</strong> Tvoja váha je v norme. Pokračuj v udržiavaní vyváženej stravy a pravidelného pohybu.
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('bmiForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Načítanie vstupov
+        const height = parseFloat(document.getElementById('height').value) / 100; // prevod na m
+        const weight = parseFloat(document.getElementById('weight').value);
+        const age = parseInt(document.getElementById('age').value);
+        const bodyType = parseInt(document.getElementById('bodyType').value);
+
+        const fatherWeight = parseFloat(document.getElementById('fatherWeight').value) || null;
+        const fatherBody = parseInt(document.getElementById('fatherBody').value) || null;
+        
+        const motherWeight = parseFloat(document.getElementById('motherWeight').value) || null;
+        const motherBody = parseInt(document.getElementById('motherBody').value) || null;
+
+        // 1. Výpočet štandardného BMI
+        const bmi = parseFloat((weight / (height * height)).toFixed(1));
+
+        // 2. Kategória BMI
+        let statusText = "";
+        let statusColor = "";
+        let gaugePct = 0;
+
+        if (bmi < 18.5) {
+            statusText = "Podváha";
+            statusColor = "#3b82f6";
+            gaugePct = Math.max(10, (bmi / 18.5) * 25);
+        } else if (bmi <= 24.9) {
+            statusText = "Normálna váha";
+            statusColor = "#10b981";
+            gaugePct = 25 + ((bmi - 18.5) / 6.4) * 25;
+        } else if (bmi <= 29.9) {
+            statusText = "Nadváha";
+            statusColor = "#f59e0b";
+            gaugePct = 50 + ((bmi - 25) / 4.9) * 25;
+        } else {
+            statusText = "Obezita";
+            statusColor = "#ef4444";
+            gaugePct = Math.min(100, 75 + ((bmi - 30) / 10) * 25);
+        }
+
+        // 3. Upravené BMI podľa typu postavy
+        let bodyTypeAdjustment = 0;
+        if (bodyType === 1) bodyTypeAdjustment = 1.0;  // Drobná kostra -> reálne BMI je o niečo vyššie
+        if (bodyType === 3) bodyTypeAdjustment = -1.5; // Svaly -> reálne BMI je nižšie
+        if (bodyType === 4) bodyTypeAdjustment = -1.0; // Široká kostra
+
+        const adjBmi = parseFloat((bmi + bodyTypeAdjustment).toFixed(1));
+
+        // 4. Genetická Analýza (Čia je to chyba?)
+        let geneticsScore = 50; // Základný 50/50 predpoklad
+
+        let parentCount = 0;
+        let parentScoreSum = 0;
+
+        if (fatherBody) {
+            parentCount++;
+            if (fatherBody === 4) parentScoreSum += 30; // Tendencia k nadváhe
+            if (fatherBody === 1) parentScoreSum -= 20; // Tendencia k štíhlosti
+        }
+
+        if (motherBody) {
+            parentCount++;
+            if (motherBody === 4) parentScoreSum += 30;
+            if (motherBody === 1) parentScoreSum -= 20;
+        }
+
+        let genPercent = 40;
+        let lifePercent = 60;
+
+        if (parentCount > 0) {
+            const avgParentEffect = parentScoreSum / parentCount;
+            
+            // Ak má užívateľ nadváhu aj rodičia majú nadváhu -> silný genetický vplyv
+            if ((bmi > 25 && avgParentEffect > 0) || (bmi < 18.5 && avgParentEffect < 0)) {
+                genPercent = 70;
+                lifePercent = 30;
+            } else if ((bmi > 25 && avgParentEffect < 0) || (bmi < 18.5 && avgParentEffect > 0)) {
+                // Užívateľ má nadváhu, ale rodičia sú štíhli -> chyba životného štýlu
+                genPercent = 20;
+                lifePercent = 80;
+            } else {
+                genPercent = 50;
+                lifePercent = 50;
+            }
+        }
+
+        // 5. Výpis do DOM
+        document.getElementById('bmiValue').innerText = bmi;
+        
+        const statusEl = document.getElementById('bmiStatus');
+        statusEl.innerText = statusText;
+        statusEl.style.backgroundColor = statusColor;
+        statusEl.style.color = '#fff';
+
+        document.getElementById('gaugeFill').style.width = gaugePct + '%';
+
+        document.getElementById('adjBmiValue').innerText = adjBmi;
+
+        document.getElementById('genPct').innerText = genPercent;
+        document.getElementById('lifePct').innerText = lifePercent;
+        document.getElementById('genBar').style.width = genPercent + '%';
+        document.getElementById('lifeBar').style.width = lifePercent + '%';
+
+        // Verdikt a Odporúčania
+        const verdictTitleEl = document.getElementById('verdictTitle');
+        const verdictTextEl = document.getElementById('verdictText');
+        const adviceBoxEl = document.getElementById('adviceBox');
+
+        if (genPercent >= 60) {
+            verdictTitleEl.innerText = "🧬 Verdikt: Prevláda Genetika (" + genPercent + "%)";
+            verdictTextEl.innerText = "Tvoja postava do veľkej miery odzrkadľuje stavbu tela tvojich rodičov. Genetické predispozície hrajú vo tvojom prípade významnú úlohu.";
+        } else if (lifePercent >= 70) {
+            verdictTitleEl.innerText = "🍔 Verdikt: Tvoja vlastná práca/chyba (" + lifePercent + "%)";
+            verdictTextEl.innerText = "Výsledná váha je hlavne dôsledkom stravovacích návykov a fyzickej aktivity. Genetika v tomto prípade nehrá hlavnú úlohu.";
+        } else {
+            verdictTitleEl.innerText = "⚖️ Verdikt: Vyrovnaný vplyv (50% / 50%)";
+            verdictTextEl.innerText = "Tvoje BMI je rovnomerne ovplyvnené rodinnou genetikou aj tvojím denným životným štýlom.";
+        }
+
+        // Odporúčanie
+        if (bmi > 25 && genPercent >= 60) {
+            adviceBoxEl.innerHTML = "💡 <strong>Odporúčanie:</strong> Máš sklon k širšej postave po rodičoch. Zameraj sa na silový tréning a vyváženú stravu – genetiku nezmeníš, ale svalovú hmotu a kondíciu áno!";
+        } else if (bmi > 25 && lifePercent >= 70) {
+            adviceBoxEl.innerHTML = "💡 <strong>Odporúčanie:</strong> Rodičia ti dali dobré základy, no denné návyky prevažujú. Skús pridať 30 minút chôdze denne a obmedziť večerné maškrtenie.";
+        } else if (bmi < 18.5) {
+            adviceBoxEl.innerHTML = "💡 <strong>Odporúčanie:</strong> Tvoje BMI ukazuje podváhu. Skús zvýšiť príjem kvalitných bielkovín a komplexných sacharidov.";
+        } else {
+            adviceBoxEl.innerHTML = "💡 <strong>Odporúčanie:</strong> Tvoja váha je v zdravom rozmedzí! Udržiavaj si pestrú stravu a pravidelný pohyb.";
+        }
+
+        // Zobrazenie výsledkového panelu
+        document.getElementById('resultCard').classList.remove('hidden');
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+    });
+</script>
+
+</body>
+</html>
