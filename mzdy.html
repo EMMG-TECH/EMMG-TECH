@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edukatívna Kalkulačka Mzdy (SR)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Výsledkový Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-box {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .metric-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0.4rem 0;
+        }
+
+        .metric-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Edukatívne rozbalenie a vzorce */
+        .step-box {
+            background: #0f172a;
+            border-left: 4px solid var(--accent);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .step-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .formula-badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            font-family: monospace;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .calculation-detail {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .math-line {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.5rem;
+            border-radius: 0.3rem;
+            margin: 0.4rem 0;
+            color: var(--accent);
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .table-custom th, .table-custom td {
+            padding: 0.6rem;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .table-custom th {
+            color: var(--text-muted);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1>🎓 Edukatívna Mzdová Kalkulačka (SR)</h1>
+        <p class="subtitle">Vypočítaj si čistú mzdu a nauč sa presné vzorce, podľa ktorých štát a zamestnávateľ počítajú dane a odvody.</p>
+        
+        <form id="salaryForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="grossSalary">Hrubá Mzda (€)</label>
+                    <input type="number" id="grossSalary" value="1300" min="0" step="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="childrenCount">Počet detí (Daňový bonus)</label>
+                    <input type="number" id="childrenCount" value="0" min="0" max="10">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" id="applyNczd" checked>
+                    <span>Uplatniť NČZD (Nezdaniteľnú časť základu dane)</span>
+                </label>
+                <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">
+                    (Znižuje základ dane a šetrí dane. Uplatňuje sa len u jedného hlavného zamestnávateľa.)
+                </span>
+            </div>
+
+            <button type="submit" class="btn-submit">⚡ Vypočítať a Ukázať Vzorce</button>
+        </form>
+    </div>
+
+    <!-- Výsledkový a Edukatívny Panel -->
+    <div class="card hidden" id="resultCard">
+        <h2>📊 Prehľad Mzdy</h2>
+        
+        <div class="dashboard">
+            <div class="metric-box">
+                <div class="metric-title">Čistá Mzda (Pre teba)</div>
+                <div class="metric-value" id="netValue" style="color: var(--success);">0 €</div>
+                <div class="metric-sub">Peniaze na účet</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-title">Hrubá Mzda</div>
+                <div class="metric-value" id="grossValue" style="color: #fff;">0 €</div>
+                <div class="metric-sub">Zmluvný plat</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-title">Superhrubá Mzda</div>
+                <div class="metric-value" id="superGrossValue" style="color: var(--accent);">0 €</div>
+                <div class="metric-sub">Celkové náklady zamestnávateľa</div>
+            </div>
+        </div>
+
+        <h2>📖 Postup Výpočtu Krok za Krokom (Návod a Vzorce)</h2>
+
+        <!-- Krok 1 -->
+        <div class="step-box">
+            <div class="step-title">
+                <span>1. Celkové Náklady Zamestnávateľa (Superhrubá Mzda)</span>
+                <span class="formula-badge">Hrubá Mzda + 35.2%</span>
+            </div>
+            <div class="calculation-detail">
+                Zamestnávateľ okrem tvojej hrubej mzdy musí zaplatiť štátu a poisťovniam ďalších <strong>35,2 %</strong> naviac.
+                <div class="math-line" id="mathStep1"></div>
+            </div>
+        </div>
+
+        <!-- Krok 2 -->
+        <div class="step-box">
+            <div class="step-title">
+                <span>2. Odvody Zamestnanca z Hrubej Mzdy</span>
+                <span class="formula-badge">Hrubá Mzda × 9.4% (SP) + 4% (ZP)</span>
+            </div>
+            <div class="calculation-detail">
+                Z hrubej mzdy sa ti odrážajú odvody do Sociálnej (9,4 %) a Zdravotnej poisťovne (4,0 %). Spolu: <strong>13,4 %</strong>.
+                <div class="math-line" id="mathStep2"></div>
+                <table class="table-custom">
+                    <tr>
+                        <th>Položka</th>
+                        <th>Sadzba</th>
+                        <th>Suma</th>
+                    </tr>
+                    <tr>
+                        <td>Zdravotné poistenie (ZP)</td>
+                        <td>4.0 %</td>
+                        <td id="employeeZp">0 €</td>
+                    </tr>
+                    <tr>
+                        <td>Sociálne poistenie (SP)</td>
+                        <td>9.4 %</td>
+                        <td id="employeeSp">0 €</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Krok 3 -->
+        <div class="step-box">
+            <div class="step-title">
+                <span>3. Základ Dane a Nezdaniteľná Časť (NČZD)</span>
+                <span class="formula-badge">Základ = Hrubá Mzda - Odvody</span>
+            </div>
+            <div class="calculation-detail">
+                Daň sa neplatí z celej hrubej mzdy, ale až z čistého základu dane po odrátaní tvojich odvodov a nezdaniteľného minima.
+                <div class="math-line" id="mathStep3"></div>
+            </div>
+        </div>
+
+        <!-- Krok 4 -->
+        <div class="step-box">
+            <div class="step-title">
+                <span>4. Výpočet Preddavku na Daň</span>
+                <span class="formula-badge">Zdaniteľný Základ × 19%</span>
+            </div>
+            <div class="calculation-detail">
+                Zo zdaniteľného základe sa vypočíta 19 % daň z príjmu.
+                <div class="math-line" id="mathStep4"></div>
+            </div>
+        </div>
+
+        <!-- Krok 5 -->
+        <div class="step-box">
+            <div class="step-title">
+                <span>5. Finálna Čistá Mzda</span>
+                <span class="formula-badge">Hrubá - Odvody - Daň + Bonus</span>
+            </div>
+            <div class="calculation-detail">
+                Čistá mzda je suma, ktorú dostaneš na bankový účet.
+                <div class="math-line" id="mathStep5"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    document.getElementById('salaryForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Vstupné hodnoty
+        const gross = parseFloat(document.getElementById('grossSalary').value) || 0;
+        const children = parseInt(document.getElementById('childrenCount').value) || 0;
+        const applyNczd = document.getElementById('applyNczd').checked;
+
+        // Konstanty (Slovensko 2026/štandard)
+        const EMPLOYEE_ZP_RATE = 0.04; // 4%
+        const EMPLOYEE_SP_RATE = 0.094; // 9.4%
+        const EMPLOYER_CONTRIBS_RATE = 0.352; // 35.2%
+        
+        // Mesačné NČZD (Nezdaniteľná časť na daňovníka ~479.48 € pri štandardných podmienkach)
+        const NCZD_MONTHLY = applyNczd ? 479.48 : 0;
+        const TAX_RATE = 0.19; // 19%
+        const CHILD_BONUS_PER_CHILD = 140; // Príklad štandardného daňového bonusu (zjednodušený)
+
+        // --- VÝPOČTY ---
+
+        // 1. Odvody zamestnávateľa a Superhrubá mzda
+        const employerContribs = gross * EMPLOYER_CONTRIBS_RATE;
+        const superGross = gross + employerContribs;
+
+        // 2. Odvody zamestnanca
+        const employeeZp = gross * EMPLOYEE_ZP_RATE;
+        const employeeSp = gross * EMPLOYEE_SP_RATE;
+        const totalEmployeeOdvody = employeeZp + employeeSp;
+
+        // 3. Základ dane
+        const baseTaxableBeforeNczd = gross - totalEmployeeOdvody;
+        const taxableBase = Math.max(0, baseTaxableBeforeNczd - NCZD_MONTHLY);
+
+        // 4. Daň z príjmu
+        const taxBeforeBonus = taxableBase * TAX_RATE;
+        
+        // Daňový bonus na deti
+        const totalChildBonus = children * CHILD_BONUS_PER_CHILD;
+        const finalTax = Math.max(0, taxBeforeBonus - totalChildBonus);
+
+        // 5. Čistá mzda
+        const net = gross - totalEmployeeOdvody - taxBeforeBonus + totalChildBonus;
+
+        // --- ZOBRAZENIE VÝSLEDKOV ---
+        document.getElementById('netValue').innerText = net.toFixed(2) + ' €';
+        document.getElementById('grossValue').innerText = gross.toFixed(2) + ' €';
+        document.getElementById('superGrossValue').innerText = superGross.toFixed(2) + ' €';
+
+        // Výpis matematických krokov
+        document.getElementById('mathStep1').innerHTML = 
+            `${gross.toFixed(2)} € (Hrubá) + (${gross.toFixed(2)} × 35.2% [${employerContribs.toFixed(2)} €]) = <strong>${superGross.toFixed(2)} €</strong>`;
+
+        document.getElementById('employeeZp').innerText = employeeZp.toFixed(2) + ' €';
+        document.getElementById('employeeSp').innerText = employeeSp.toFixed(2) + ' €';
+
+        document.getElementById('mathStep2').innerHTML = 
+            `Odvody spolu = ${employeeZp.toFixed(2)} € (ZP) + ${employeeSp.toFixed(2)} € (SP) = <strong>${totalEmployeeOdvody.toFixed(2)} €</strong>`;
+
+        document.getElementById('mathStep3').innerHTML = 
+            `Základ dane = ${gross.toFixed(2)} € (Hrubá) - ${totalEmployeeOdvody.toFixed(2)} € (Odvody) = ${baseTaxableBeforeNczd.toFixed(2)} €<br>` +
+            (applyNczd 
+                ? `Po uplatnení NČZD (-${NCZD_MONTHLY} €) je zdaniteľný základ: <strong>${taxableBase.toFixed(2)} €</strong>`
+                : `NČZD neuplatnené, zdaniteľný základ: <strong>${taxableBase.toFixed(2)} €</strong>`);
+
+        document.getElementById('mathStep4').innerHTML = 
+            `Daň (19%) = ${taxableBase.toFixed(2)} € × 0.19 = ${taxBeforeBonus.toFixed(2)} €<br>` +
+            (children > 0 
+                ? `Daňový bonus (${children}x ${CHILD_BONUS_PER_CHILD} €) = -${totalChildBonus} € => Výsledná daň: <strong>${finalTax.toFixed(2)} €</strong>`
+                : `Výsledná daň: <strong>${taxBeforeBonus.toFixed(2)} €</strong>`);
+
+        document.getElementById('mathStep5').innerHTML = 
+            `Čistá Mzda = ${gross.toFixed(2)} € (Hrubá) - ${totalEmployeeOdvody.toFixed(2)} € (Odvody) - ${taxBeforeBonus.toFixed(2)} € (Daň)` +
+            (children > 0 ? ` + ${totalChildBonus} € (Bonus na deti)` : ``) +
+            ` = <strong style="color: var(--success); font-size: 1.1rem;">${net.toFixed(2)} €</strong>`;
+
+        // Zobrazenie výsledkov
+        document.getElementById('resultCard').classList.remove('hidden');
+        document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+    });
+</script>
+
+</body>
+</html>
