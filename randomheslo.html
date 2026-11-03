@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="sk" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberShield - Ultimatívny Generátor Hesiel</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyberDark: '#0b0f19',
+                        cyberCard: '#111827',
+                        cyberBorder: '#1f2937',
+                        neonCyan: '#06b6d4',
+                        neonGreen: '#10b981',
+                        neonPurple: '#8b5cf6',
+                        neonPink: '#ec4899',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #060913;
+            color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+        }
+        .mono-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .glow-cyan {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.25);
+        }
+        .glow-green {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2.5 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl text-slate-950 font-black shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-400 bg-clip-text text-transparent">
+                        CyberShield PassGen
+                    </h1>
+                    <p class="text-[11px] text-gray-400 font-medium">Kryptograficky bezpečný generátor hesiel</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-800/60">
+                    <i class="fa-solid fa-lock text-[10px] mr-1.5"></i> Crypto API Active
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Left Controls Column -->
+        <section class="lg:col-span-7 space-y-6">
+
+            <!-- Primary Output Card -->
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-6 shadow-2xl relative backdrop-blur-sm glow-cyan">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                        <i class="fa-solid fa-key text-cyan-400"></i> Vygenerované Heslo
+                    </label>
+                    <span id="passwordLengthBadge" class="text-xs font-mono font-bold text-cyan-400 bg-cyan-950 px-2.5 py-0.5 rounded-md border border-cyan-800/50">
+                        16 znakov
+                    </span>
+                </div>
+
+                <!-- Password Display Area -->
+                <div class="relative group">
+                    <textarea id="mainPasswordOutput" readonly rows="3" 
+                        class="w-full bg-slate-950 border border-gray-700/80 rounded-xl p-4 pr-14 text-green-400 mono-font text-base sm:text-lg font-bold focus:outline-none focus:border-cyan-500 transition resize-none break-all leading-relaxed"
+                        placeholder="Kliknite na Generovať heslo..."></textarea>
+                    
+                    <button onclick="copyToClipboard(document.getElementById('mainPasswordOutput').value, this)" 
+                        title="Kopírovať heslo" 
+                        class="absolute top-3 right-3 p-2.5 bg-gray-800 hover:bg-cyan-600 text-gray-300 hover:text-white rounded-lg transition-all shadow-md active:scale-95">
+                        <i class="fa-solid fa-copy text-base"></i>
+                    </button>
+                </div>
+
+                <!-- Generate Main Button -->
+                <button onclick="generatePasswords()" 
+                    class="mt-4 w-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black py-4 px-6 rounded-xl shadow-lg shadow-cyan-500/20 transition-all transform active:scale-[0.99] flex items-center justify-center gap-3 text-base uppercase tracking-wider">
+                    <i class="fa-solid fa-bolt text-lg"></i> Vygenerovať Heslo
+                </button>
+            </div>
+
+            <!-- Configurations Card -->
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-6 shadow-xl space-y-6">
+                <h2 class="text-base font-bold text-white flex items-center gap-2 border-b border-gray-800 pb-3">
+                    <i class="fa-solid fa-sliders text-cyan-400"></i> Nastavenia Parametrov
+                </h2>
+
+                <!-- Password Length Config -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="text-sm font-semibold text-gray-300">Dĺžka hesla (počet znakov):</label>
+                        <input type="number" id="lengthInput" min="1" max="100000" value="16" oninput="syncLength(this.value)"
+                            class="w-28 bg-slate-950 border border-gray-700 rounded-lg px-3 py-1 text-right text-cyan-400 mono-font font-bold text-sm focus:outline-none focus:border-cyan-500">
+                    </div>
+
+                    <!-- Slider -->
+                    <input type="range" id="lengthRange" min="1" max="256" value="16" oninput="syncLength(this.value)"
+                        class="w-full accent-cyan-400 bg-gray-800 rounded-lg h-2 cursor-pointer">
+
+                    <!-- Preset Length Quick Buttons -->
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        <span class="text-xs text-gray-500 font-semibold self-center mr-1">Rýchla dĺžka:</span>
+                        <button onclick="setLengthPreset(8)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">8</button>
+                        <button onclick="setLengthPreset(16)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">16</button>
+                        <button onclick="setLengthPreset(32)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">32</button>
+                        <button onclick="setLengthPreset(64)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">64</button>
+                        <button onclick="setLengthPreset(128)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">128</button>
+                        <button onclick="setLengthPreset(512)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">512</button>
+                        <button onclick="setLengthPreset(1024)" class="px-2.5 py-1 text-xs font-mono font-bold bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md border border-gray-700">1024</button>
+                    </div>
+                </div>
+
+                <!-- Quantity Generator Config -->
+                <div class="flex justify-between items-center pt-2 border-t border-gray-800">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-300 block">Počet hesiel naraz:</label>
+                        <span class="text-xs text-gray-500">Vygeneruje zoznam viacerých unikátnych hesiel</span>
+                    </div>
+                    <input type="number" id="quantityInput" min="1" max="100" value="1" 
+                        class="w-20 bg-slate-950 border border-gray-700 rounded-lg px-3 py-1 text-right text-cyan-400 mono-font font-bold text-sm focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <!-- Character Sets Toggles -->
+                <div class="space-y-3 pt-2 border-t border-gray-800">
+                    <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-2">Znakové sady:</label>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Lowercase -->
+                        <label class="flex items-center space-x-3 bg-slate-950/60 p-3 rounded-xl border border-gray-800 cursor-pointer hover:border-gray-700 transition">
+                            <input type="checkbox" id="chkLowercase" checked onchange="validateOptions()" class="w-4 h-4 accent-cyan-400 rounded">
+                            <span class="text-sm text-gray-300 font-medium">Malé písmená <code class="text-xs text-gray-500 font-mono">(a-z)</code></span>
+                        </label>
+
+                        <!-- Uppercase -->
+                        <label class="flex items-center space-x-3 bg-slate-950/60 p-3 rounded-xl border border-gray-800 cursor-pointer hover:border-gray-700 transition">
+                            <input type="checkbox" id="chkUppercase" checked onchange="validateOptions()" class="w-4 h-4 accent-cyan-400 rounded">
+                            <span class="text-sm text-gray-300 font-medium">Veľké písmená <code class="text-xs text-gray-500 font-mono">(A-Z)</code></span>
+                        </label>
+
+                        <!-- Numbers -->
+                        <label class="flex items-center space-x-3 bg-slate-950/60 p-3 rounded-xl border border-gray-800 cursor-pointer hover:border-gray-700 transition">
+                            <input type="checkbox" id="chkNumbers" checked onchange="validateOptions()" class="w-4 h-4 accent-cyan-400 rounded">
+                            <span class="text-sm text-gray-300 font-medium">Čísla <code class="text-xs text-gray-500 font-mono">(0-9)</code></span>
+                        </label>
+
+                        <!-- Symbols -->
+                        <label class="flex items-center space-x-3 bg-slate-950/60 p-3 rounded-xl border border-gray-800 cursor-pointer hover:border-gray-700 transition">
+                            <input type="checkbox" id="chkSymbols" checked onchange="validateOptions()" class="w-4 h-4 accent-cyan-400 rounded">
+                            <span class="text-sm text-gray-300 font-medium">Špeciálne znaky <code class="text-xs text-gray-500 font-mono">(!@#$%)</code></span>
+                        </label>
+                    </div>
+
+                    <!-- Exclude Ambiguous Characters -->
+                    <label class="flex items-center space-x-3 bg-slate-950/60 p-3 rounded-xl border border-gray-800 cursor-pointer hover:border-gray-700 transition mt-2">
+                        <input type="checkbox" id="chkExcludeSimilar" class="w-4 h-4 accent-cyan-400 rounded">
+                        <div>
+                            <span class="text-sm text-gray-300 font-medium block">Vylúčiť zmätočné znaky</span>
+                            <span class="text-xs text-gray-500 font-mono">Vynechá l, 1, I, O, 0, o, |, `</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Analysis & History Column -->
+        <section class="lg:col-span-5 space-y-6">
+
+            <!-- Security & Hacker Analysis Card -->
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-6 shadow-xl space-y-5">
+                <h2 class="text-base font-bold text-white flex items-center gap-2 border-b border-gray-800 pb-3">
+                    <i class="fa-solid fa-user-ninja text-rose-400"></i> Analýza pre Hackera
+                </h2>
+
+                <!-- Strength Meter Bar -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <span class="text-xs text-gray-400 font-semibold uppercase">Úroveň Bezpečnosti</span>
+                        <span id="strengthText" class="text-xs font-bold font-mono text-emerald-400">Extrémne silné</span>
+                    </div>
+                    <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden p-0.5 border border-gray-800">
+                        <div id="strengthBar" class="h-full rounded-full transition-all duration-500 bg-emerald-500" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div class="bg-slate-950/80 p-3.5 rounded-xl border border-gray-800">
+                        <span class="text-[11px] text-gray-500 uppercase font-semibold block">Entropia</span>
+                        <span id="entropyValue" class="text-xl font-bold font-mono text-cyan-400 mt-1 block">128 bits</span>
+                    </div>
+
+                    <div class="bg-slate-950/80 p-3.5 rounded-xl border border-gray-800">
+                        <span class="text-[11px] text-gray-500 uppercase font-semibold block">Veľkosť abecedy</span>
+                        <span id="poolSizeValue" class="text-xl font-bold font-mono text-indigo-400 mt-1 block">94 znakov</span>
+                    </div>
+                </div>
+
+                <!-- Crack Time Estimate -->
+                <div class="p-4 rounded-xl bg-slate-950 border border-gray-800 space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-stopwatch text-amber-400"></i> Odhad času prelomenia:
+                    </span>
+                    <div id="crackTimeValue" class="text-lg font-black font-mono text-emerald-400 leading-snug">
+                        10^24 Rokov
+                    </div>
+                    <p class="text-[11px] text-gray-500">
+                        *Vypočítané pri superpočítačovom bruteforce útok s rýchlosťou <span class="font-mono text-gray-400">100 miliárd pokusov/sekundu</span>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Batch Output & History Card -->
+            <div class="bg-gray-900/80 border border-gray-800 rounded-2xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Vygenerované Zoznamy / História
+                    </h2>
+                    <button onclick="downloadPasswords()" title="Stiahnuť zoznam hesiel" class="text-xs font-semibold text-gray-400 hover:text-cyan-400 bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg border border-gray-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-download"></i> Uložiť .txt
+                    </button>
+                </div>
+
+                <!-- History Items List -->
+                <div id="historyList" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    <p class="text-xs text-gray-500 italic text-center py-6">Zatiaľ neboli vygenerované žiadne heslá.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-slate-950/60 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-gray-500">
+            CyberShield Generator &copy; 2026 | Kryptograficky bezpečný algoritmický generátor hesiel
+        </div>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // Character sets definition
+        const CHAR_SETS = {
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+
+        const AMBIGUOUS_CHARS = /[l1IO0o|`]/g;
+
+        let passwordHistory = [];
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            generatePasswords();
+        });
+
+        // Sync slider & numeric input
+        function syncLength(val) {
+            let num = parseInt(val) || 1;
+            if (num < 1) num = 1;
+
+            document.getElementById('lengthInput').value = num;
+            document.getElementById('lengthRange').value = Math.min(num, 256);
+            document.getElementById('passwordLengthBadge').innerText = `${num} znakov`;
+
+            generatePasswords();
+        }
+
+        // Set preset length
+        function setLengthPreset(len) {
+            syncLength(len);
+        }
+
+        // Prevent deselecting all options
+        function validateOptions() {
+            const chkLower = document.getElementById('chkLowercase');
+            const chkUpper = document.getElementById('chkUppercase');
+            const chkNum = document.getElementById('chkNumbers');
+            const chkSym = document.getElementById('chkSymbols');
+
+            if (!chkLower.checked && !chkUpper.checked && !chkNum.checked && !chkSym.checked) {
+                chkLower.checked = true; // Fallback
+            }
+            generatePasswords();
+        }
+
+        // Core Secure Generator Function
+        function generatePasswords() {
+            const length = parseInt(document.getElementById('lengthInput').value) || 16;
+            const quantity = parseInt(document.getElementById('quantityInput').value) || 1;
+
+            const useLower = document.getElementById('chkLowercase').checked;
+            const useUpper = document.getElementById('chkUppercase').checked;
+            const useNum = document.getElementById('chkNumbers').checked;
+            const useSym = document.getElementById('chkSymbols').checked;
+            const excludeSimilar = document.getElementById('chkExcludeSimilar').checked;
+
+            // Build pool
+            let pool = '';
+            if (useLower) pool += CHAR_SETS.lowercase;
+            if (useUpper) pool += CHAR_SETS.uppercase;
+            if (useNum) pool += CHAR_SETS.numbers;
+            if (useSym) pool += CHAR_SETS.symbols;
+
+            if (excludeSimilar) {
+                pool = pool.replace(AMBIGUOUS_CHARS, '');
+            }
+
+            if (pool.length === 0) {
+                pool = CHAR_SETS.lowercase;
+            }
+
+            const generatedBatch = [];
+            for (let q = 0; q < quantity; q++) {
+                generatedBatch.push(cryptoSecureRandomString(length, pool));
+            }
+
+            // Display primary password
+            const mainPassword = generatedBatch[0];
+            document.getElementById('mainPasswordOutput').value = mainPassword;
+
+            // Update Security Analysis
+            analyzePasswordStrength(mainPassword, pool.length);
+
+            // Add batch to history
+            generatedBatch.forEach(pwd => {
+                passwordHistory.unshift(pwd);
+            });
+            // Keep max 50 items in history
+            passwordHistory = passwordHistory.slice(0, 50);
+
+            renderHistory();
+        }
+
+        // Cryptographically Secure Random Generator
+        function cryptoSecureRandomString(length, charset) {
+            const charsetLength = charset.length;
+            const randomValues = new Uint32Array(length);
+            window.crypto.getRandomValues(randomValues);
+
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += charset[randomValues[i] % charsetLength];
+            }
+            return result;
+        }
+
+        // Analyze Entropy and Crack Time
+        function analyzePasswordStrength(password, poolSize) {
+            const length = password.length;
+            
+            // Calculate Shannon Entropy: E = L * log2(R)
+            const entropy = Math.round(length * (Math.log2(poolSize) || 1));
+
+            document.getElementById('entropyValue').innerText = `${entropy} bitov`;
+            document.getElementById('poolSizeValue').innerText = `${poolSize} znakov`;
+
+            // Calculate brute force duration
+            // Assuming 100 Billion guesses/sec (10^11)
+            const totalCombinations = Math.pow(poolSize, length);
+            const guessesPerSecond = 100000000000; // 100 Billion
+            const secondsToCrack = totalCombinations / guessesPerSecond;
+
+            const crackTimeStr = formatTimeEstimate(secondsToCrack);
+            document.getElementById('crackTimeValue').innerText = crackTimeStr;
+
+            // Strength Visual Meter
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+
+            if (entropy < 28) {
+                strengthBar.style.width = '15%';
+                strengthBar.className = 'h-full rounded-full transition-all duration-500 bg-rose-600';
+                strengthText.innerText = 'Veľmi Slabé';
+                strengthText.className = 'text-xs font-bold font-mono text-rose-500';
+            } else if (entropy < 45) {
+                strengthBar.style.width = '35%';
+                strengthBar.className = 'h-full rounded-full transition-all duration-500 bg-orange-500';
+                strengthText.innerText = 'Slabé';
+                strengthText.className = 'text-xs font-bold font-mono text-orange-400';
+            } else if (entropy < 70) {
+                strengthBar.style.width = '60%';
+                strengthBar.className = 'h-full rounded-full transition-all duration-500 bg-amber-400';
+                strengthText.innerText = 'Priemerné';
+                strengthText.className = 'text-xs font-bold font-mono text-amber-400';
+            } else if (entropy < 100) {
+                strengthBar.style.width = '85%';
+                strengthBar.className = 'h-full rounded-full transition-all duration-500 bg-emerald-400';
+                strengthText.innerText = 'Silné';
+                strengthText.className = 'text-xs font-bold font-mono text-emerald-400';
+            } else {
+                strengthBar.style.width = '100%';
+                strengthBar.className = 'h-full rounded-full transition-all duration-500 bg-cyan-400 shadow-lg shadow-cyan-400/50';
+                strengthText.innerText = 'Neprekonateľné (Extrémne)';
+                strengthText.className = 'text-xs font-bold font-mono text-cyan-400';
+            }
+        }
+
+        // Format Seconds into readable time
+        function formatTimeEstimate(seconds) {
+            if (seconds < 0.001) return 'Okamžite (< 1 ms)';
+            if (seconds < 1) return 'Menej ako 1 sekunda';
+            if (seconds < 60) return `${Math.round(seconds)} sekúnd`;
+            if (seconds < 3600) return `${Math.round(seconds / 60)} minút`;
+            if (seconds < 86400) return `${Math.round(seconds / 3600)} hodín`;
+            if (seconds < 31536000) return `${Math.round(seconds / 86400)} dní`;
+            
+            const years = seconds / 31536000;
+            if (years < 1000) return `${Math.round(years)} rokov`;
+            if (years < 1000000) return `${(years / 1000).toFixed(1)} tisíc rokov`;
+            if (years < 1000000000) return `${(years / 1000000).toFixed(1)} miliónov rokov`;
+            if (years < 1000000000000) return `${(years / 1000000000).toFixed(1)} miliárd rokov`;
+
+            return 'Miliardy miliárd rokov (Nekonečno)';
+        }
+
+        // Render History Items
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (passwordHistory.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-6">Zatiaľ neboli vygenerované žiadne heslá.</p>`;
+                return;
+            }
+
+            container.innerHTML = passwordHistory.map((pwd, idx) => `
+                <div class="flex items-center justify-between bg-slate-950 px-3 py-2 rounded-xl border border-gray-800 text-xs font-mono group hover:border-gray-700 transition">
+                    <span class="text-gray-300 truncate max-w-[220px] sm:max-w-[300px]">${escapeHtml(pwd)}</span>
+                    <button onclick="copyToClipboard('${escapeJs(pwd)}', this)" title="Kopírovať" class="text-gray-500 hover:text-cyan-400 p-1 transition">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Copy Clipboard with Feedback
+        function copyToClipboard(text, btnElement) {
+            if (!text) return;
+
+            // ExecCommand fallback method
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            // Visual feedback
+            const originalIcon = btnElement.innerHTML;
+            btnElement.innerHTML = `<i class="fa-solid fa-check text-emerald-400"></i>`;
+            setTimeout(() => {
+                btnElement.innerHTML = originalIcon;
+            }, 1500);
+        }
+
+        // Download TXT file
+        function downloadPasswords() {
+            if (passwordHistory.length === 0) {
+                alert('Zatiaľ nemáte vygenerované žiadne heslá na stiahnutie.');
+                return;
+            }
+
+            const content = `===================================\n CYBERSHIELD - VYGENEROVANÉ HESLÁ\n Vygenerované: ${new Date().toLocaleString('sk-SK')}\n===================================\n\n` + passwordHistory.join('\n');
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `cybershield_passwords_${Date.now()}.txt`;
+            link.click();
+        }
+
+        // Helpers
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+        function escapeJs(text) {
+            return text.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+    </script>
+</body>
+</html>
