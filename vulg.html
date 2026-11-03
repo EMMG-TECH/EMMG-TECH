@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nadávková Analýza / Vulgarity Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        cardBg: '#1e293b',
+                        accentRed: '#ef4444',
+                        accentOrange: '#f97316',
+                        accentGreen: '#10b981',
+                        neonRed: '#ff2a5f',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        .glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+        }
+        .glow-orange {
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.35);
+        }
+        .glow-green {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+        }
+        .pulsing-rec {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-gradient-to-tr from-rose-600 to-orange-500 rounded-xl text-white shadow-lg">
+                    <i class="fa-solid font-bold fa-bolt text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-rose-400 via-orange-400 to-amber-300 bg-clip-text text-transparent">
+                        Vulgarity Tracker
+                    </h1>
+                    <p class="text-xs text-slate-400 font-medium">Slovenská Nadávková Analýza</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <span id="speechSupportBadge" class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950 text-emerald-400 border border-emerald-800">
+                    <i class="fa-solid fa-check-circle mr-1"></i> Speech API Podporované
+                </span>
+                <button onclick="exportReport()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-download text-xs"></i> <span class="hidden sm:inline">Exportovať Report</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 space-y-8">
+
+        <!-- Top Section: Mode Selector Tabs -->
+        <div class="flex justify-center">
+            <div class="bg-slate-800/80 p-1.5 rounded-xl border border-slate-700/60 inline-flex space-x-1 shadow-inner">
+                <button id="tabMicBtn" onclick="switchTab('mic')" class="px-6 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-2 bg-rose-600 text-white shadow-md">
+                    <i class="fa-solid fa-microphone"></i> Reálny čas (Mikrofón)
+                </button>
+                <button id="tabFileBtn" onclick="switchTab('file')" class="px-6 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-700/50">
+                    <i class="fa-solid fa-file-audio"></i> Analýza Súboru / Textu
+                </button>
+            </div>
+        </div>
+
+        <!-- MODE 1: MIC REAL-TIME -->
+        <section id="modeMic" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Control & Live Transcript Card -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Recording Control Box -->
+                <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6 shadow-xl relative overflow-hidden backdrop-blur-sm">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <button id="toggleMicBtn" onclick="toggleListening()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-rose-600/30 transition-all transform active:scale-95">
+                                <i id="micIcon" class="fa-solid fa-microphone"></i>
+                            </button>
+                            <div>
+                                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <span id="statusIndicator" class="w-3 h-3 rounded-full bg-slate-500 inline-block"></span>
+                                    <span id="statusText">Pripravený na spustenie</span>
+                                </h2>
+                                <p class="text-xs text-slate-400 mt-1">Počúvanie prebieha v slovenskom jazyku (sk-SK)</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <button onclick="resetData()" class="px-3 py-2 text-xs font-semibold text-slate-400 hover:text-rose-400 bg-slate-900/50 hover:bg-slate-900 rounded-lg border border-slate-700 transition">
+                                <i class="fa-solid fa-rotate-right mr-1"></i> Vynulovať dáta
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Live Transcription Output -->
+                    <div class="mt-6">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Živý prepis hovoreného slova:</label>
+                        <div id="liveTranscript" class="w-full h-36 bg-slate-900/90 border border-slate-700/70 rounded-xl p-4 text-slate-300 font-normal overflow-y-auto leading-relaxed text-sm italic">
+                            Kliknite na ikonu mikrofónu a začnite hovoriť. Systém automaticky deteguje slovenské vulgarizmy v reálnom čase...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Detections Timeline -->
+                <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-orange-400"></i> Nedávno detegované výrazy
+                    </h3>
+                    <div id="detectionsList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-500 italic text-center py-4">Zatiaľ neboli zachytené žiadne nadávky.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Dashboard Column -->
+            <div class="space-y-6">
+                <!-- Stats Overview Cards -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5 shadow-xl">
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Celkový počet</div>
+                        <div id="totalBadWords" class="text-4xl font-black text-rose-500 mt-2">0</div>
+                        <div class="text-[10px] text-slate-500 mt-1">zachätených výrazov</div>
+                    </div>
+
+                    <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5 shadow-xl">
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Frekvencia</div>
+                        <div id="wordsPerMin" class="text-4xl font-black text-orange-400 mt-2">0.0</div>
+                        <div class="text-[10px] text-slate-500 mt-1">nadávok za minútu</div>
+                    </div>
+                </div>
+
+                <!-- Stress-o-meter Card -->
+                <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex justify-between items-center">
+                        <span>Vulgarity / Stress Index</span>
+                        <span id="stressPercentage" class="text-emerald-400 font-extrabold text-base">0%</span>
+                    </h3>
+                    
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
+                        <div id="stressBar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-600 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Category Status -->
+                    <div class="mt-4 pt-3 border-t border-slate-700/50 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">Hodnotenie správania:</span>
+                        <span id="stressCategory" class="font-bold text-emerald-400">Svätec / Mních</span>
+                    </div>
+                </div>
+
+                <!-- Psychological Advice Card -->
+                <div class="bg-gradient-to-br from-slate-800/90 to-slate-900/90 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-brain"></i> Odporúčanie systému
+                    </h3>
+                    <p id="psychAdvice" class="text-xs text-slate-300 leading-relaxed italic">
+                        "Pokoj v mysli. Zatiaľ udržiavate úplnú čistotu reči. Pokračujte v tomto ukážkovom vyjadrovaní."
+                    </p>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- MODE 2: FILE UPLOAD & TEXT ANALYSIS -->
+        <section id="modeFile" class="hidden max-w-4xl mx-auto space-y-6">
+            
+            <div class="bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-6">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-rose-500"></i> Analýza zo súboru alebo celodenného prepisu
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Nahrajte audio súbor (MP3, WAV) pre simulovaný prepis alebo priamo vložte textovú konverzáciu.</p>
+                </div>
+
+                <!-- File Drop Zone / Audio Input -->
+                <div class="border-2 border-dashed border-slate-700 hover:border-rose-500/50 transition rounded-xl p-6 text-center bg-slate-900/40 relative">
+                    <input type="file" id="audioFileInput" accept="audio/*" onchange="handleFileUpload(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <div class="space-y-2 pointer-events-none">
+                        <i class="fa-solid fa-file-audio text-3xl text-slate-500"></i>
+                        <p class="text-sm font-semibold text-slate-300">Kliknite pre výber audio súboru alebo ho pretiahnite sem</p>
+                        <p id="fileNameDisplay" class="text-xs text-rose-400 font-mono"></p>
+                    </div>
+                </div>
+
+                <!-- Text Area Input for Manual Transcript -->
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Alebo vložte textový prepis celého dňa:</label>
+                    <textarea id="manualTextInput" rows="6" placeholder="Vložte sem akýkoľvek text... (napr. 'Dnes mi ten počítač zasa zamrzol, kokot starý, išiel som do piče s tou prácou...')" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl p-4 text-sm text-slate-200 focus:outline-none focus:border-rose-500 transition resize-none"></textarea>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex justify-end">
+                    <button id="analyzeBtn" onclick="analyzeTextContent()" class="bg-gradient-to-r from-rose-600 to-orange-500 hover:from-rose-500 hover:to-orange-400 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-lg shadow-rose-600/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i> Spustiť Hĺbkovú Analýzu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loader Simulation -->
+            <div id="analysisLoader" class="hidden bg-slate-800/80 border border-slate-700 rounded-2xl p-8 text-center space-y-4">
+                <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-rose-500 border-t-transparent"></div>
+                <p class="text-sm text-slate-300 font-medium">Spracovávam audio a vyhodnocujem fonetické vzorce slovenských nadávok...</p>
+            </div>
+
+            <!-- File Analysis Results Dashboard -->
+            <div id="fileResultsCard" class="hidden bg-slate-800/60 border border-slate-700/80 rounded-2xl p-6 shadow-xl space-y-6">
+                <h3 class="text-base font-bold text-white border-b border-slate-700 pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-square-poll-vertical text-rose-500"></i> Výsledky Analýzy Súboru / Textu
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Počet Slov Celkovo</div>
+                        <div id="resTotalWords" class="text-2xl font-black text-white mt-1">0</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Detegované Nadávky</div>
+                        <div id="resBadWordsCount" class="text-2xl font-black text-rose-500 mt-1">0</div>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Hustota Vulgarizmov</div>
+                        <div id="resVulgarityDensity" class="text-2xl font-black text-orange-400 mt-1">0%</div>
+                    </div>
+                </div>
+
+                <!-- Words Breakdown List -->
+                <div>
+                    <h4 class="text-xs font-semibold uppercase text-slate-400 mb-3">Frekvencia konkrétnych nadávok:</h4>
+                    <div id="resWordsBreakdown" class="flex flex-wrap gap-2">
+                        <!-- Dynamic Badges -->
+                    </div>
+                </div>
+
+                <!-- Recommendation box -->
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 space-y-2">
+                    <div class="text-xs font-bold text-amber-400 uppercase tracking-wider">Vyhodnotenie & Odporúčanie:</div>
+                    <p id="resRecommendation" class="text-sm text-slate-300 italic"></p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-slate-900/40 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            Vulgarity Tracker &copy; 2026 | Vyrobené pre analýzu rečového prejavu
+        </div>
+    </footer>
+
+    <!-- JS Logic -->
+    <script>
+        // --- BAD WORDS DICTIONARY (Slovak swear words & variations) ---
+        const BAD_WORDS_LIST = [
+            'kokot', 'kokoti', 'kokota', 'kokotovi', 'kokotom', 'kokote', 'kokotina', 'kokotiny', 'kokotský',
+            'piča', 'piči', 'piču', 'piče', 'pica', 'pici', 'picu', 'pice', 'pičovina', 'pičoviny',
+            'jeb', 'jebať', 'jebat', 'jebnutý', 'jebnuta', 'jebnuty', 'jebem', 'jebe', 'jebu', 'jebal', 'jebala',
+            'kurva', 'kurvy', 'kurve', 'kurvou', 'kurvám', 'kurvaaaa',
+            'chuj', 'chuja', 'chujovi', 'chujom', 'chuji',
+            'doprdele', 'do prdele', 'rit', 'riti', 'riť',
+            'pinda', 'kkt', 'pča', 'skurvený', 'skurveny', 'skurvená', 'skurvili',
+            'vyjebaný', 'vyjebany', 'vyjebaná', 'ochuj', 'zmrdi', 'zmrd'
+        ];
+
+        // System State Variables
+        let isListening = false;
+        let recognition = null;
+        let totalBadWordsCount = 0;
+        let totalWordsSpoken = 0;
+        let startTime = null;
+        let detectionHistory = [];
+        let wordCounts = {};
+
+        // DOM Element References
+        const toggleMicBtn = document.getElementById('toggleMicBtn');
+        const micIcon = document.getElementById('micIcon');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const liveTranscript = document.getElementById('liveTranscript');
+        const totalBadWordsEl = document.getElementById('totalBadWords');
+        const wordsPerMinEl = document.getElementById('wordsPerMin');
+        const detectionsList = document.getElementById('detectionsList');
+        const stressBar = document.getElementById('stressBar');
+        const stressPercentage = document.getElementById('stressPercentage');
+        const stressCategory = document.getElementById('stressCategory');
+        const psychAdvice = document.getElementById('psychAdvice');
+
+        // Check Web Speech API Support
+        window.addEventListener('DOMContentLoaded', () => {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SpeechRecognition) {
+                document.getElementById('speechSupportBadge').classList.remove('hidden');
+                initSpeechRecognition(SpeechRecognition);
+            } else {
+                statusText.innerText = "Speech API nie je podporované v tomto prehliadači.";
+                toggleMicBtn.disabled = true;
+                toggleMicBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        // Initialize Speech Recognition
+        function initSpeechRecognition(SpeechRecognitionClass) {
+            recognition = new SpeechRecognitionClass();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'sk-SK';
+
+            recognition.onstart = () => {
+                isListening = true;
+                if (!startTime) startTime = new Date();
+                statusIndicator.className = "w-3 h-3 rounded-full bg-rose-500 pulsing-rec inline-block";
+                statusText.innerText = "Počúvam...";
+                micIcon.className = "fa-solid fa-stop";
+                toggleMicBtn.className = "w-16 h-16 rounded-full bg-slate-700 hover:bg-slate-600 text-white flex items-center justify-center text-2xl font-bold shadow-lg transition-all transform active:scale-95 glow-red";
+            };
+
+            recognition.onend = () => {
+                // Auto restart if intended to run continuously
+                if (isListening) {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error(e);
+                    }
+                } else {
+                    statusIndicator.className = "w-3 h-3 rounded-full bg-slate-500 inline-block";
+                    statusText.innerText = "Pozastavené";
+                    micIcon.className = "fa-solid fa-microphone";
+                    toggleMicBtn.className = "w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-2xl font-bold shadow-lg shadow-rose-600/30 transition-all transform active:scale-95";
+                }
+            };
+
+            recognition.onresult = (event) => {
+                let currentTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    currentTranscript += event.results[i][0].transcript;
+                }
+                
+                liveTranscript.innerText = currentTranscript;
+                liveTranscript.scrollTop = liveTranscript.scrollHeight;
+
+                // Process last segment for bad words
+                if (event.results[event.results.length - 1].isFinal) {
+                    processTextForBadWords(event.results[event.results.length - 1][0].transcript);
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech Recognition Error: ", event.error);
+                if (event.error === 'not-allowed') {
+                    alert("Prístup k mikrofónu bol zamietnutý. Prosím povoľte mikrofón v prehliadači.");
+                    isListening = false;
+                }
+            };
+        }
+
+        // Toggle Microphone Listening
+        function toggleListening() {
+            if (!recognition) return;
+            if (isListening) {
+                isListening = false;
+                recognition.stop();
+            } else {
+                isListening = true;
+                recognition.start();
+            }
+        }
+
+        // Process Speech Text & Match Dictionary
+        function processTextForBadWords(text) {
+            const cleanText = text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+            const words = cleanText.split(/\s+/);
+            
+            words.forEach(word => {
+                if (!word) return;
+                totalWordsSpoken++;
+
+                // Check against bad words
+                const matchedBadWord = BAD_WORDS_LIST.find(bad => word === bad || (word.length > 4 && bad.length > 4 && word.includes(bad)));
+                
+                if (matchedBadWord) {
+                    registerBadWord(matchedBadWord, word);
+                }
+            });
+
+            updateStatsDisplay();
+        }
+
+        // Register Detected Bad Word
+        function registerBadWord(badWordCategory, actualWord) {
+            totalBadWordsCount++;
+            wordCounts[badWordCategory] = (wordCounts[badWordCategory] || 0) + 1;
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('sk-SK');
+
+            // Add to timeline history
+            detectionHistory.unshift({
+                time: timeString,
+                word: actualWord
+            });
+
+            // Update UI list
+            renderDetectionsList();
+        }
+
+        // Render Detections List
+        function renderDetectionsList() {
+            if (detectionHistory.length === 0) {
+                detectionsList.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-4">Zatiaľ neboli zachytené žiadne nadávky.</p>`;
+                return;
+            }
+
+            detectionsList.innerHTML = detectionHistory.slice(0, 15).map(item => `
+                <div class="flex items-center justify-between bg-slate-900/80 px-3 py-2 rounded-lg border border-slate-700/50 text-xs animate-fade-in">
+                    <span class="font-bold text-rose-400 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> ${escapeHtml(item.word)}
+                    </span>
+                    <span class="text-[10px] text-slate-500 font-mono">${item.time}</span>
+                </div>
+            `).join('');
+        }
+
+        // Update Stats & Recommendations
+        function updateStatsDisplay() {
+            totalBadWordsEl.innerText = totalBadWordsCount;
+
+            // Calculate words per minute
+            let wpm = 0;
+            if (startTime) {
+                const minutesPassed = Math.max((new Date() - startTime) / 60000, 0.1);
+                wpm = (totalBadWordsCount / minutesPassed).toFixed(1);
+            }
+            wordsPerMinEl.innerText = wpm;
+
+            // Calculate Stress / Vulgarity Index (0-100%)
+            // Benchmark: 5 bad words = ~25%, 20+ bad words = 100%
+            let stressVal = Math.min(Math.round((totalBadWordsCount / 15) * 100), 100);
+            stressBar.style.width = stressVal + '%';
+            stressPercentage.innerText = stressVal + '%';
+
+            // Category & Recommendations update
+            let catText = "Svätec / Mních";
+            let catColor = "text-emerald-400";
+            let advice = '"Pokoj v mysli. Zatiaľ udržiavate úplnú čistotu reči. Pokračujte v tomto ukážkovom vyjadrovaní."';
+
+            if (stressVal > 0 && stressVal <= 25) {
+                catText = "Svedomitý Občan";
+                catColor = "text-emerald-400";
+                advice = '"Občasné ulietnutie slovíčka je v norme. Vaša hladina frustrácie je stále pod kontrolou."';
+            } else if (stressVal > 25 && stressVal <= 60) {
+                catText = "Mierne Stresovaný Kancelár";
+                catColor = "text-amber-400";
+                advice = '"Zisťujeme zvýšený výskyt vulgarizmov. Odporúčame krátku 5-minútovú pauzu, kávu alebo zhlboka dýchať."';
+            } else if (stressVal > 60 && stressVal <= 85) {
+                catText = "Rozzúrený Hráč / Vodič";
+                catColor = "text-orange-500";
+                advice = '"Pozor! Frekvencia nadávok dosahuje rizikové hodnoty. Počítač ani volanti za to nemôžu. Skúste si vybiť energiu športom."';
+            } else if (stressVal > 85) {
+                catText = "Nekontrolovateľná Vulkanická Erupcia";
+                catColor = "text-rose-500";
+                advice = '"Kritická úroveň! Odporúčame okamžitý meditačný pobyt v tichu, bylinkový čaj a vymeniť klávesnicu za odolnejší gumový model."';
+            }
+
+            stressCategory.innerText = catText;
+            stressCategory.className = `font-bold ${catColor}`;
+            psychAdvice.innerText = advice;
+        }
+
+        // Reset Data
+        function resetData() {
+            totalBadWordsCount = 0;
+            totalWordsSpoken = 0;
+            startTime = isListening ? new Date() : null;
+            detectionHistory = [];
+            wordCounts = {};
+            liveTranscript.innerText = "Dáta boli vynulované. Začnite opäť hovoriť...";
+            renderDetectionsList();
+            updateStatsDisplay();
+        }
+
+        // Tab Switching Logic
+        function switchTab(mode) {
+            const tabMicBtn = document.getElementById('tabMicBtn');
+            const tabFileBtn = document.getElementById('tabFileBtn');
+            const modeMic = document.getElementById('modeMic');
+            const modeFile = document.getElementById('modeFile');
+
+            if (mode === 'mic') {
+                tabMicBtn.className = "px-6 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-2 bg-rose-600 text-white shadow-md";
+                tabFileBtn.className = "px-6 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-700/50";
+                modeMic.classList.remove('hidden');
+                modeFile.classList.add('hidden');
+            } else {
+                tabFileBtn.className = "px-6 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-2 bg-rose-600 text-white shadow-md";
+                tabMicBtn.className = "px-6 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-700/50";
+                modeFile.classList.remove('hidden');
+                modeMic.classList.add('hidden');
+            }
+        }
+
+        // Handle Audio File Upload Simulation
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('fileNameDisplay').innerText = `Vybraný súbor: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                
+                // Demo simulated transcript insertion if textarea is empty
+                const textarea = document.getElementById('manualTextInput');
+                if (!textarea.value.trim()) {
+                    textarea.value = `[Simulovaný prepis zo súboru ${file.name}]: Dnes bol naozaj ťažký deň. Ráno ma nasral šéf, bol to proste chuj a kokot. Potom mi nešiel prístup do systému, tak som poslal celú prácu do piče. Jebal som sa s tým celé poobedie, skurvený počítač zasa zamrzol! Aká to je pičovina.`;
+                }
+            }
+        }
+
+        // Analyze Manual or Audio File Text Content
+        function analyzeTextContent() {
+            const text = document.getElementById('manualTextInput').value.trim();
+            if (!text) {
+                alert("Prosím vložte textový prepis alebo nahrajte audio súbor na analýzu.");
+                return;
+            }
+
+            const loader = document.getElementById('analysisLoader');
+            const resultsCard = document.getElementById('fileResultsCard');
+            
+            loader.classList.remove('hidden');
+            resultsCard.classList.add('hidden');
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                resultsCard.classList.remove('hidden');
+
+                // Perform Text Analysis
+                const cleanText = text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+                const words = cleanText.split(/\s+/).filter(w => w.length > 0);
+                const totalWords = words.length;
+
+                let fileBadWordsCount = 0;
+                let fileWordCounts = {};
+
+                words.forEach(word => {
+                    const matched = BAD_WORDS_LIST.find(bad => word === bad || (word.length > 4 && bad.length > 4 && word.includes(bad)));
+                    if (matched) {
+                        fileBadWordsCount++;
+                        fileWordCounts[matched] = (fileWordCounts[matched] || 0) + 1;
+                    }
+                });
+
+                const density = totalWords > 0 ? ((fileBadWordsCount / totalWords) * 100).toFixed(1) : 0;
+
+                // Populate File Analysis UI
+                document.getElementById('resTotalWords').innerText = totalWords;
+                document.getElementById('resBadWordsCount').innerText = fileBadWordsCount;
+                document.getElementById('resVulgarityDensity').innerText = `${density}%`;
+
+                // Render Words Breakdown Badges
+                const breakdownContainer = document.getElementById('resWordsBreakdown');
+                if (Object.keys(fileWordCounts).length === 0) {
+                    breakdownContainer.innerHTML = `<span class="text-xs text-emerald-400 font-semibold">Žiadne zistené vulgarizmy v texte!</span>`;
+                } else {
+                    breakdownContainer.innerHTML = Object.entries(fileWordCounts).map(([w, c]) => `
+                        <span class="bg-rose-950/80 border border-rose-800 text-rose-300 text-xs px-3 py-1 rounded-full font-bold flex items-center gap-1.5">
+                            ${escapeHtml(w)} <span class="bg-rose-600 text-white rounded-full text-[10px] w-4 h-4 inline-flex items-center justify-center">${c}</span>
+                        </span>
+                    `).join('');
+                }
+
+                // Custom Recommendation
+                const recEl = document.getElementById('resRecommendation');
+                if (fileBadWordsCount === 0) {
+                    recEl.innerText = "Text obsahuje ukážkovú slovnú zásobu bez jediného sprostého slova. Gratulujeme!";
+                } else if (density < 3) {
+                    recEl.innerText = "Nízka hustota vulgarizmov. Prepis vykazuje bežnú dennú úroveň vyššieho stresu.";
+                } else if (density < 7) {
+                    recEl.innerText = "Stredná hustota vulgarizmov. V prejave sa objavujú silné emócie a rozčúlenie. Odporúčame ventilovať hnev inou formou.";
+                } else {
+                    recEl.innerText = "Vysoká hustota nadávok! Tento prepis vykazuje masívnu mieru frustrácie a hnevu. Odporúča sa zvýšený odpočinok.";
+                }
+
+            }, 900);
+        }
+
+        // Export Detailed Text Report
+        function exportReport() {
+            const dateStr = new Date().toLocaleString('sk-SK');
+            let reportContent = `===================================\n`;
+            reportContent += ` VULGARITY TRACKER - REPORT\n`;
+            reportContent += ` Vygenerované: ${dateStr}\n`;
+            reportContent += `===================================\n\n`;
+
+            reportContent += `--- REÁLNY ČAS (MIKROFÓN) ---\n`;
+            reportContent += `Celkový počet detegovaných nadávok: ${totalBadWordsCount}\n`;
+            reportContent += `Index Stresu / Vulgarity: ${stressPercentage.innerText}\n`;
+            reportContent += `Hodnotenie: ${stressCategory.innerText}\n\n`;
+
+            reportContent += `--- HISTÓRIA DETEKCIÍ ---\n`;
+            if (detectionHistory.length === 0) {
+                reportContent += `Žiadne nahrávky v histórii.\n`;
+            } else {
+                detectionHistory.forEach((item, index) => {
+                    reportContent += `${index + 1}. [${item.time}] ${item.word}\n`;
+                });
+            }
+
+            // Download File Trigger
+            const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `vulgarity_report_${Date.now()}.txt`;
+            link.click();
+        }
+
+        // Helper Utility to prevent XSS
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
